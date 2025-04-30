@@ -50,55 +50,29 @@ document.addEventListener('click', ev => {
       let commandDelay = 0 
       let commandDelayIncrement = 500
       // Move pawns two spaces up and connect rooks
-      setTimeout(() => movePieceForward(queenRookPawnId, 'up'), commandDelay)
+      setTimeout(() => movePieceForward(queenRookPawnId, 'up', 2), commandDelay)
       commandDelay += commandDelayIncrement
-      setTimeout(() => movePieceForward(queenRookPawnId, 'up'), commandDelay)
+      setTimeout(() => movePieceForward(queenRookId, 'up', 2),     commandDelay)
       commandDelay += commandDelayIncrement
-      setTimeout(() => movePieceForward(queenRookId, 'up'),     commandDelay)
+      setTimeout(() => movePieceForward(kingRookPawnId, 'up', 2),  commandDelay)
       commandDelay += commandDelayIncrement
-      setTimeout(() => movePieceForward(queenRookId, 'up'),     commandDelay)
+      setTimeout(() => movePieceForward(kingRookId, 'up', 2),      commandDelay)
       commandDelay += commandDelayIncrement
-      setTimeout(() => movePieceForward(kingRookPawnId, 'up'),  commandDelay)
-      commandDelay += commandDelayIncrement
-      setTimeout(() => movePieceForward(kingRookPawnId, 'up'),  commandDelay)
-      commandDelay += commandDelayIncrement
-      setTimeout(() => movePieceForward(kingRookId, 'up'),      commandDelay)
-      commandDelay += commandDelayIncrement
-      setTimeout(() => movePieceForward(kingRookId, 'up'),      commandDelay)
 
+      setTimeout(() => movePieceForward(kingRookId, 'left', 3),      commandDelay)
       commandDelay += commandDelayIncrement
-      setTimeout(() => movePieceForward(kingRookId, 'left'),      commandDelay)
+      setTimeout(() => movePieceForward(queenRookId, 'right', 3),      commandDelay)
       commandDelay += commandDelayIncrement
-      setTimeout(() => movePieceForward(queenRookId, 'right'),      commandDelay)
-      commandDelay += commandDelayIncrement
-      setTimeout(() => movePieceForward(kingRookId, 'left'),      commandDelay)
-      commandDelay += commandDelayIncrement
-      setTimeout(() => movePieceForward(queenRookId, 'right'),      commandDelay)
-      commandDelay += commandDelayIncrement
-      setTimeout(() => movePieceForward(kingRookId, 'left'),      commandDelay)
-      commandDelay += commandDelayIncrement
-      setTimeout(() => movePieceForward(queenRookId, 'right'),      commandDelay)
 
+      setTimeout(() => movePieceForward(kingRookId, 'up', 4),      commandDelay)
       commandDelay += commandDelayIncrement
+      setTimeout(() => movePieceForward(queenRookId, 'up', 4),      commandDelay)
+      commandDelay += commandDelayIncrement
+
       setTimeout(() => movePieceForward(kingRookId, 'up'),      commandDelay)
       commandDelay += commandDelayIncrement
       setTimeout(() => movePieceForward(queenRookId, 'up'),      commandDelay)
       commandDelay += commandDelayIncrement
-      setTimeout(() => movePieceForward(kingRookId, 'up'),      commandDelay)
-      commandDelay += commandDelayIncrement
-      setTimeout(() => movePieceForward(queenRookId, 'up'),      commandDelay)
-      commandDelay += commandDelayIncrement
-      setTimeout(() => movePieceForward(kingRookId, 'up'),      commandDelay)
-      commandDelay += commandDelayIncrement
-      setTimeout(() => movePieceForward(queenRookId, 'up'),      commandDelay)
-      commandDelay += commandDelayIncrement
-      setTimeout(() => movePieceForward(kingRookId, 'up'),      commandDelay)
-      commandDelay += commandDelayIncrement
-      setTimeout(() => movePieceForward(queenRookId, 'up'),      commandDelay)
-      commandDelay += commandDelayIncrement
-      setTimeout(() => movePieceForward(kingRookId, 'up'),      commandDelay)
-      commandDelay += commandDelayIncrement
-      setTimeout(() => movePieceForward(queenRookId, 'up'),      commandDelay)
 
       commandDelay += commandDelayIncrement
       setTimeout(() => movePieceForward(kingRookId, 'right'),      commandDelay)
@@ -197,7 +171,7 @@ document.addEventListener('keydown', ev => {
   movePieceForward(PIECE_ID, move)
 })
 
-function movePieceForward(pieceId, direction) {
+function movePieceForward(pieceId, direction, steps=1) {
   const piece = document.querySelector(`[data-id="${pieceId}"]`);
   if (!piece) {
     return
@@ -225,21 +199,22 @@ function movePieceForward(pieceId, direction) {
         inversion = -1
       }
 
-      if (direction === 'left' && dx === -SQUARE_SIZE && dy === 0) {
+      let distance = SQUARE_SIZE * steps
+      if (direction === 'left' && dx === -distance && dy === 0) {
         button.click()
-      } else if (direction === 'right' && dx === SQUARE_SIZE && dy === 0) {
+      } else if (direction === 'right' && dx === distance && dy === 0) {
         button.click()
-      } else if (direction === 'up' && dx === 0 && dy === -SQUARE_SIZE * inversion) {
+      } else if (direction === 'up' && dx === 0 && dy === -distance * inversion) {
         button.click()
-      } else if (direction === 'down' && dx === 0 && dy === SQUARE_SIZE * inversion) {
+      } else if (direction === 'down' && dx === 0 && dy === distance * inversion) {
         button.click()
-      } else if (direction === 'up-left' && dx === -SQUARE_SIZE && dy === -SQUARE_SIZE * inversion) {
+      } else if (direction === 'up-left' && dx === -distance && dy === -distance * inversion) {
         button.click()
-      } else if (direction === 'up-right' && dx === SQUARE_SIZE && dy === -SQUARE_SIZE * inversion) {
+      } else if (direction === 'up-right' && dx === distance && dy === -distance * inversion) {
         button.click()
-      } else if (direction === 'down-left' && dx === -SQUARE_SIZE && dy === SQUARE_SIZE * inversion) {
+      } else if (direction === 'down-left' && dx === -distance && dy === distance * inversion) {
         button.click()
-      } else if (direction === 'down-right' && dx === SQUARE_SIZE && dy === SQUARE_SIZE * inversion) {
+      } else if (direction === 'down-right' && dx === distance && dy === distance * inversion) {
         button.click()
       }
     })
