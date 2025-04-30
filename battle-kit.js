@@ -7,6 +7,10 @@ const allTextElements = document.querySelectorAll('p');
 let isBlack = true; // Default to black if can't determine
 let color = 'black'
 
+let MODE = 'DEFAULT'
+let STEP_SIZE = 1
+let COLLECTED_PIECE_IDS = []
+
 for (const element of allTextElements) {
   const text = element.textContent.toLowerCase();
   if (text.includes('playing black')) {
@@ -25,6 +29,12 @@ document.addEventListener('click', ev => {
   if (el.tagName === 'IMG' && el.src.includes(color + "-") && el.parentElement.tagName === 'BUTTON') {
     let id = el.parentElement.getAttribute('data-id')
     PIECE_ID = id
+
+    if (MODE === 'COLLECT') {
+      COLLECTED_PIECE_IDS.push(id)
+      console.log('COLLECTED', COLLECTED_PIECE_IDS)
+    }
+
     if (el.src && el.src.includes("king")) {
       const king = el.parentElement
       const kingId = parseInt(king.getAttribute('data-id'))
@@ -150,25 +160,65 @@ document.addEventListener('keydown', ev => {
     }
     return
   }
+  if (ev.which === 67) { // C - toggle collect mode
+    if (MODE === 'DEFAULT') {
+      MODE = 'COLLECT'
+    } else {
+      MODE = 'DEFAULT'
+      COLLECTED_PIECE_IDS = []
+    }
+    console.log('MODE', MODE);
+    return
+  }
 
+  if (ev.which >= 49 && ev.which <= 57) { // 1-9 keys
+    STEP_SIZE = ev.which - 48; // Convert ASCII to number (49-57 -> 1-9)
+    console.log('STEP_SIZE now', STEP_SIZE)
+    return
+  }
+  
   if (ev.which === 65) { // A - left
     move = 'left'
   } else if (ev.which === 83) { // S - down
     move = 'down'
+    if (isBlack) {
+      move = 'up'
+    }
   } else if (ev.which === 87) { // W - up
     move = 'up'
+    if (isBlack) {
+      move = 'down'
+    }
   } else if (ev.which === 68) { // D - right
     move = 'right'
   } else if (ev.which === 81) { // Q - up-left
     move = 'up-left'
+    if (isBlack) {
+      move = 'down-left'
+    }
   } else if (ev.which === 69) { // E - up-right
     move = 'up-right'
+    if (isBlack) {
+      move = 'down-right'
+    }
   } else if (ev.which === 90) { // Z - down-left
     move = 'down-left'
+    if (isBlack) {
+      move = 'up-right'
+    }
   } else if (ev.which === 88) { // X - down-right
     move = 'down-right'
+    if (isBlack) {
+      move = 'up-right'
+    }
   }
-  movePieceForward(PIECE_ID, move)
+  
+  COLLECTED_PIECE_IDS.forEach((id, index) => {
+    setTimeout(() => {
+      console.log('move', id, move)
+      movePieceForward(id, move, STEP_SIZE)
+    }, 300 * index)
+  })
 })
 
 function movePieceForward(pieceId, direction, steps=1) {
