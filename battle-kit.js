@@ -5,10 +5,24 @@ const SQUARE_SIZE = 28
 
 const allTextElements = document.querySelectorAll('p');
 let isBlack = true; // Default to black if can't determine
+let color = 'black'
+
+for (const element of allTextElements) {
+  const text = element.textContent.toLowerCase();
+  if (text.includes('playing black')) {
+    isBlack = true;
+    color = 'black'
+    break;
+  } else if (text.includes('playing white')) {
+    isBlack = false;
+    color = 'white'
+    break;
+  }
+}
 
 document.addEventListener('click', ev => {
   const el = ev.srcElement
-  if (el.tagName === 'IMG' && el.src.includes("white-") && el.parentElement.tagName === 'BUTTON') {
+  if (el.tagName === 'IMG' && el.src.includes(color + "-") && el.parentElement.tagName === 'BUTTON') {
     let id = el.parentElement.getAttribute('data-id')
     PIECE_ID = id
     if (el.src && el.src.includes("king")) {
@@ -34,7 +48,7 @@ document.addEventListener('click', ev => {
       const kingRook = document.querySelector(`[data-id="${kingRookId}"]`);
 
       let commandDelay = 0 
-      let commandDelayIncrement = 150
+      let commandDelayIncrement = 500
       // Move pawns two spaces up and connect rooks
       setTimeout(() => movePieceForward(queenRookPawnId, 'up'), commandDelay)
       commandDelay += commandDelayIncrement
@@ -118,17 +132,6 @@ document.addEventListener('click', ev => {
     }
   }
 })
-
-for (const element of allTextElements) {
-  const text = element.textContent.toLowerCase();
-  if (text.includes('playing black')) {
-    isBlack = true;
-    break;
-  } else if (text.includes('playing white')) {
-    isBlack = false;
-    break;
-  }
-}
 
 function getAllPieces(pieceType) {
   const allButtons = document.querySelectorAll('button');
@@ -217,21 +220,26 @@ function movePieceForward(pieceId, direction) {
       const dx = xx - x0
       const dy = yy - y0
 
+      let inversion = 1
+      if (isBlack) {
+        inversion = -1
+      }
+
       if (direction === 'left' && dx === -SQUARE_SIZE && dy === 0) {
         button.click()
       } else if (direction === 'right' && dx === SQUARE_SIZE && dy === 0) {
         button.click()
-      } else if (direction === 'up' && dx === 0 && dy === -SQUARE_SIZE) {
+      } else if (direction === 'up' && dx === 0 && dy === -SQUARE_SIZE * inversion) {
         button.click()
-      } else if (direction === 'down' && dx === 0 && dy === SQUARE_SIZE) {
+      } else if (direction === 'down' && dx === 0 && dy === SQUARE_SIZE * inversion) {
         button.click()
-      } else if (direction === 'up-left' && dx === -SQUARE_SIZE && dy === -SQUARE_SIZE) {
+      } else if (direction === 'up-left' && dx === -SQUARE_SIZE && dy === -SQUARE_SIZE * inversion) {
         button.click()
-      } else if (direction === 'up-right' && dx === SQUARE_SIZE && dy === -SQUARE_SIZE) {
+      } else if (direction === 'up-right' && dx === SQUARE_SIZE && dy === -SQUARE_SIZE * inversion) {
         button.click()
-      } else if (direction === 'down-left' && dx === -SQUARE_SIZE && dy === SQUARE_SIZE) {
+      } else if (direction === 'down-left' && dx === -SQUARE_SIZE && dy === SQUARE_SIZE * inversion) {
         button.click()
-      } else if (direction === 'down-right' && dx === SQUARE_SIZE && dy === SQUARE_SIZE) {
+      } else if (direction === 'down-right' && dx === SQUARE_SIZE && dy === SQUARE_SIZE * inversion) {
         button.click()
       }
     })
@@ -257,7 +265,7 @@ function moveKnightsRandomly() {
       if (text.includes('playing black')) {
         isBlack = true;
         break;
-      } else if (text.includes('playing white')) {
+      } else if (text.includes('playing black')) {
         isBlack = false;
         break;
       }
