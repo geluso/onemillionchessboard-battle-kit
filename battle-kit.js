@@ -9,7 +9,7 @@ let color = 'black'
 
 let MODE = 'DEFAULT'
 let STEP_SIZE = 1
-let COLLECTED_PIECE_IDS = []
+let COLLECTED_PIECE_IDS = new Set()
 
 for (const element of allTextElements) {
   const text = element.textContent.toLowerCase();
@@ -31,8 +31,10 @@ document.addEventListener('click', ev => {
     PIECE_ID = id
 
     if (MODE === 'COLLECT') {
-      COLLECTED_PIECE_IDS.push(id)
+      COLLECTED_PIECE_IDS.add(id)
       console.log('COLLECTED', COLLECTED_PIECE_IDS)
+    } else {
+      COLLECTED_PIECE_IDS = new Set(PIECE_ID)
     }
 
     if (el.src && el.src.includes("king")) {
@@ -165,7 +167,7 @@ document.addEventListener('keydown', ev => {
       MODE = 'COLLECT'
     } else {
       MODE = 'DEFAULT'
-      COLLECTED_PIECE_IDS = []
+      COLLECTED_PIECE_IDS = new Set()
     }
     console.log('MODE', MODE);
     return
@@ -213,11 +215,13 @@ document.addEventListener('keydown', ev => {
     }
   }
   
-  COLLECTED_PIECE_IDS.forEach((id, index) => {
+  let index = 0
+  COLLECTED_PIECE_IDS.forEach(id => {
     setTimeout(() => {
       console.log('move', id, move)
       movePieceForward(id, move, STEP_SIZE)
     }, 300 * index)
+    index++
   })
 })
 
