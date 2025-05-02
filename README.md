@@ -17,6 +17,8 @@ I expanded and added some more features. A lot are probably crummy and broken an
 * Rooks expand out destroying bishops, knights, and rooks.
 * Rooks step back to pawn row and move back to middle clearing pawns out.
 
+Demo: https://www.youtube.com/watch?v=sSKKd19azm0
+
 ## Control Groups
 
 * Press C to toggle to control group mode
