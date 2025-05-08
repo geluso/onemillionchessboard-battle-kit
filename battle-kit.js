@@ -7,9 +7,14 @@ const allTextElements = document.querySelectorAll('p');
 let isBlack = true; // Default to black if can't determine
 let color = 'black'
 
-let MODE = 'DEFAULT'
+const MODES = ['DEFAULT', 'COLLECT']
+let MODE = 'COLLECT'
 let STEP_SIZE = 1
 let COLLECTED_PIECE_IDS = new Set()
+
+let IS_WORLD_EATER_ENABLED = true
+let STEP_SIZE_BUTTONS = []
+let MAX_STEP_SIZE = 34
 
 for (const element of allTextElements) {
   const text = element.textContent.toLowerCase();
@@ -24,6 +29,212 @@ for (const element of allTextElements) {
   }
 }
 
+const oldControls = document.getElementById('controls')
+if (oldControls) {
+  oldControls.remove()
+}
+
+const controls = document.createElement('div')
+controls.style.backgroundColor = 'black'
+controls.style.width = '200px'
+controls.id = 'controls'
+controls.style.position = 'absolute'
+controls.style.top = 0
+controls.style.left = 0
+
+const title = document.createElement('p')
+title.textContent = 'Macros'
+controls.appendChild(title)
+
+const worldEaterContainer = document.createElement('div')
+const worldEaterLabel = document.createElement('label')
+const worldEaterCheckbox = document.createElement('input')
+const worldEaterText = document.createElement('span')
+worldEaterText.textContent = 'World Eater'
+worldEaterCheckbox.type = 'checkbox'
+worldEaterCheckbox.checked = IS_WORLD_EATER_ENABLED
+
+worldEaterCheckbox.addEventListener('change', () => {
+  IS_WORLD_EATER_ENABLED = worldEaterCheckbox.checked
+})
+
+worldEaterLabel.appendChild(worldEaterCheckbox)
+worldEaterLabel.appendChild(worldEaterText)
+worldEaterContainer.appendChild(worldEaterLabel)
+controls.appendChild(worldEaterContainer)
+
+const idListContainer = document.createElement('div')
+const idListTitle = document.createElement('p')
+idListTitle.textContent = 'Control Group'
+const idListClear = document.createElement('button')
+idListClear.addEventListener('click', () => removeAllIdsFromList())
+
+const startCollectButton = document.createElement('button')
+const stopCollectButton = document.createElement('button')
+startCollectButton.textContent = 'Collect'
+stopCollectButton.textContent = 'Stop'
+if (MODE === 'COLLECT') {
+  startCollectButton.disabled = true
+} else {
+  stopCollectButton.disabled = true
+}
+
+const stepSizeTitle = document.createElement('p')
+stepSizeTitle.textContent = 'Set Step Size'
+controls.appendChild(stepSizeTitle)
+
+let row = document.createElement('div')
+for (let i = 1; i <= MAX_STEP_SIZE; i++) {
+  const button = document.createElement('button')
+  button.className = 'set-step-size-button'
+  button.textContent = i
+  row.appendChild(button)
+  STEP_SIZE_BUTTONS.push(button)
+  
+  button.addEventListener('click', () => setStepSize(i))
+  
+  if (i % 6 === 0) {
+    controls.appendChild(row)
+    row = document.createElement('div')
+  }
+}
+
+if (row.firstChild) {
+  controls.appendChild(row)
+}
+
+highlightCurrentStepSize()
+
+const idList = document.createElement('div')
+rebuildPieceIdList()
+
+startCollectButton.addEventListener('click', startCollect)
+stopCollectButton.addEventListener('click', stopCollect)
+
+idListContainer.appendChild(idListTitle)
+idListContainer.appendChild(startCollectButton)
+idListContainer.appendChild(stopCollectButton)
+idListContainer.appendChild(idList)
+
+document.body.appendChild(controls)
+controls.appendChild(idListContainer)
+
+function setStepSize(i) {
+  STEP_SIZE = i
+  highlightCurrentStepSize()
+}
+
+function highlightCurrentStepSize() {
+  STEP_SIZE_BUTTONS.forEach(button => {
+    if (button.textContent === '' + STEP_SIZE) {
+      button.style.backgroundColor = 'yellow'
+    } else {
+      button.style.backgroundColor = ''
+    }
+  })
+}
+
+function startCollect() {
+  console.log('startCollect')
+  MODE = 'COLLECT'
+  startCollectButton.disabled = true
+  stopCollectButton.disabled = false
+}
+
+function stopCollect() {
+  console.log('stopCollect')
+  MODE = 'DEFAULT'
+  startCollectButton.disabled = false
+  stopCollectButton.disabled = true
+}
+
+function rebuildPieceIdList() {
+  removeAllIdsFromList()
+  COLLECTED_PIECE_IDS.forEach(addPieceIdToList)
+}
+
+function addPieceIdToList(id) {
+  const piece = getPieceElementById(id)
+  if (!piece) {
+    console.log('addPieceIdToList ID not found', id)
+    return
+  }
+
+  if (COLLECTED_PIECE_IDS.has(id)) {
+    console.log('addPieceIdToList ID already collected', id)
+    return
+  }
+
+  COLLECTED_PIECE_IDS.add(id)
+  console.log('COLLECTED', COLLECTED_PIECE_IDS)
+
+  console.log('addPieceIdToList', id)
+  const li = document.createElement('div')
+  const o = document.createElement('button')
+  const x = document.createElement('button')
+  const img = document.createElement('img')
+  const idText = document.createElement('span')
+
+  o.textContent = 'O'
+  o.addEventListener('click', () => centerOnPiece(id))
+
+  x.textContent = 'X'
+  x.addEventListener('click', () => removeIdFromList(id))
+
+  img.src = piece.firstChild.src
+  img.style.width = '28px'
+  img.style.display = 'inline'
+  idText.textContent = 'ID:' + id
+
+  // TODO add hover effect for piece
+
+  li.appendChild(img)
+  li.appendChild(idText)
+  li.appendChild(o)
+  li.appendChild(x)
+
+  idList.appendChild(li) 
+}
+
+function centerOnPiece(id) {
+  const piece = getPieceElementById(id)
+  const paragraphs = [...document.getElementsByTagName('p')].filter(pp => pp.textContent.includes(','))
+  if (paragraphs.length >= 2) {
+    // get the second paragraph under the piece picture in the starcraft display
+    const locationHash = paragraphs[1].textContent
+    window.location.hash = locationHash
+  }
+}
+
+function removeIdFromList(id) {
+  if (!COLLECTED_PIECE_IDS.has(id)) {
+    console.log('removeIdFromList does not contain ID:', id)
+    return
+  }
+
+  console.log('removeIdFromList', id)
+  COLLECTED_PIECE_IDS.delete(id)
+  idList.childNodes.forEach(el => {
+    if (el.textContent.includes('ID:'+id)) {
+      el.remove()
+    }
+  })
+}
+
+function removeAllIdsFromList() {
+  COLLECTED_PIECE_IDS = new Set()
+  COLLECTED_PIECE_IDS.add(PIECE_ID)
+  console.log('removeAllIdsFromList')
+  while (idList.firstChild) {
+    idList.firstChild.remove()
+  }
+}
+
+function getPieceElementById(id) {
+  const piece = document.querySelector(`[data-id="${id}"]`);
+  return piece
+}
+
 document.addEventListener('click', ev => {
   const el = ev.srcElement
   if (el.tagName === 'IMG' && el.src.includes(color + "-") && el.parentElement.tagName === 'BUTTON') {
@@ -31,10 +242,9 @@ document.addEventListener('click', ev => {
     PIECE_ID = id
 
     if (MODE === 'COLLECT') {
-      COLLECTED_PIECE_IDS.add(id)
-      console.log('COLLECTED', COLLECTED_PIECE_IDS)
+      addPieceIdToList(id)
     } else {
-      COLLECTED_PIECE_IDS = new Set(PIECE_ID)
+      removeAllIdsFromList()
     }
 
     if (el.src && el.src.includes("king")) {
@@ -164,17 +374,18 @@ document.addEventListener('keydown', ev => {
   }
   if (ev.which === 67) { // C - toggle collect mode
     if (MODE === 'DEFAULT') {
-      MODE = 'COLLECT'
+      startCollect()
     } else {
-      MODE = 'DEFAULT'
-      COLLECTED_PIECE_IDS = new Set()
+      stopCollect()
     }
-    console.log('MODE', MODE);
     return
   }
 
   if (ev.which >= 49 && ev.which <= 57) { // 1-9 keys
     STEP_SIZE = ev.which - 48; // Convert ASCII to number (49-57 -> 1-9)
+    if (STEP_SIZE === 9) {
+      STEP_SIZE = 31
+    }
     console.log('STEP_SIZE now', STEP_SIZE)
     return
   }
@@ -215,14 +426,16 @@ document.addEventListener('keydown', ev => {
     }
   }
   
-  let index = 0
-  COLLECTED_PIECE_IDS.forEach(id => {
-    setTimeout(() => {
-      console.log('move', id, move)
-      movePieceForward(id, move, STEP_SIZE)
-    }, 300 * index)
-    index++
-  })
+  if (move !== 'none') {
+    let index = 0
+    COLLECTED_PIECE_IDS.forEach(id => {
+      setTimeout(() => {
+        console.log('move', id, move)
+        movePieceForward(id, move, STEP_SIZE)
+      }, 300 * index)
+      index++
+    })
+  }
 })
 
 function movePieceForward(pieceId, direction, steps=1) {

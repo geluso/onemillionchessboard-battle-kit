@@ -34,7 +34,7 @@ Demo: https://www.youtube.com/watch?v=sSKKd19azm0
   * Each rook will take one step left
   * Press `8` then `a`
   * Each rook will slide 8 steps left in one motion
-  * Press `8` then `d` and the rooks will get jammed up because they're in each other's way.
+  * Press `8` then `d` and the rooks will get jammed up because they're in each other's way.gg
 
 ## TODO
 
