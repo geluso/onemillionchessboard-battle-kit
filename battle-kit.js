@@ -188,6 +188,11 @@ function addPieceIdToList(id) {
 
   // TODO add hover effect for piece
 
+  li.addEventListener('mouseover', () => {
+    console.log('mouseover', id)
+    piece.click()
+  })
+
   li.appendChild(img)
   li.appendChild(idText)
   li.appendChild(o)
@@ -197,7 +202,9 @@ function addPieceIdToList(id) {
 }
 
 function centerOnPiece(id) {
+  console.log('centering on piece', id)
   const piece = getPieceElementById(id)
+  piece.click()
   const paragraphs = [...document.getElementsByTagName('p')].filter(pp => pp.textContent.includes(','))
   if (paragraphs.length >= 2) {
     // get the second paragraph under the piece picture in the starcraft display
@@ -479,7 +486,6 @@ function movePieceForward(pieceId, direction, steps=1) {
           isClicked = true
         } else if (!maxLeft.button || dx < maxLeft.value) {
           maxLeft = { value: dx, button }
-          console.log('set maxLeft', maxLeft)
         }
       } else if (direction === 'right' && dy === 0) {
         if (dx === distance) {
@@ -487,7 +493,6 @@ function movePieceForward(pieceId, direction, steps=1) {
           isClicked = true
         } else if (!maxRight.button || dx > maxRight.value) {
           maxRight = { value: dx, button }
-          console.log('set maxRight', maxRight)
         }
       } else if (direction === 'up' && dx === 0 && dy === -distance * inversion) {
         if (dy === -distance) {
@@ -495,7 +500,6 @@ function movePieceForward(pieceId, direction, steps=1) {
           isClicked = true
         } else if (!maxUp.button || dy < maxUp.value || inversion && dy > maxUp.value) {
           maxUp = { value: dy, button }
-          console.log('set maxUp', maxUp)
         }
       } else if (direction === 'down' && dx === 0 && dy === distance * inversion) {
         if (dy === distance) {
@@ -503,7 +507,6 @@ function movePieceForward(pieceId, direction, steps=1) {
           isClicked = true
         } else if (!maxDown || dy > maxUp.value || inversion && dy < maxUp.value) {
           maxDown = { value: dy, button }
-          console.log('set maxDown', maxDown)
         }
       } else if (direction === 'up-left' && dx === -distance && dy === -distance * inversion) {
         button.click()
