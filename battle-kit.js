@@ -383,9 +383,7 @@ document.addEventListener('keydown', ev => {
 
   if (ev.which >= 49 && ev.which <= 57) { // 1-9 keys
     STEP_SIZE = ev.which - 48; // Convert ASCII to number (49-57 -> 1-9)
-    if (STEP_SIZE === 9) {
-      STEP_SIZE = 31
-    }
+    highlightCurrentStepSize()
     console.log('STEP_SIZE now', STEP_SIZE)
     return
   }
@@ -455,6 +453,13 @@ function movePieceForward(pieceId, direction, steps=1) {
             button.style.getPropertyValue('--y') !== '' &&
             !button.querySelector('img'); // Exclude other pieces
     });
+    
+    let maxLeft = {value: 0, button: null}
+    let maxRight = {value: 0, button: null}
+    let maxUp = {value: 0, button: null}
+    let maxDown = {value: 0, button: null}
+
+    let isClicked = false
     moveButtons.forEach(button => {
       const xx = parseInt(button.style.getPropertyValue('--x'))
       const yy = parseInt(button.style.getPropertyValue('--y'))
@@ -467,24 +472,65 @@ function movePieceForward(pieceId, direction, steps=1) {
       }
 
       let distance = SQUARE_SIZE * steps
-      if (direction === 'left' && dx === -distance && dy === 0) {
-        button.click()
-      } else if (direction === 'right' && dx === distance && dy === 0) {
-        button.click()
+      if (direction === 'left' && dy === 0) {
+        // Exact match
+        if (dx === -distance) {
+          button.click()
+          isClicked = true
+        } else if (!maxLeft.button || dx < maxLeft.value) {
+          maxLeft = { value: dx, button }
+          console.log('set maxLeft', maxLeft)
+        }
+      } else if (direction === 'right' && dy === 0) {
+        if (dx === distance) {
+          button.click()
+          isClicked = true
+        } else if (!maxRight.button || dx > maxRight.value) {
+          maxRight = { value: dx, button }
+          console.log('set maxRight', maxRight)
+        }
       } else if (direction === 'up' && dx === 0 && dy === -distance * inversion) {
-        button.click()
+        if (dy === -distance) {
+          button.click()
+          isClicked = true
+        } else if (!maxUp.button || dy < maxUp.value || inversion && dy > maxUp.value) {
+          maxUp = { value: dy, button }
+          console.log('set maxUp', maxUp)
+        }
       } else if (direction === 'down' && dx === 0 && dy === distance * inversion) {
-        button.click()
+        if (dy === distance) {
+          button.click()
+          isClicked = true
+        } else if (!maxDown || dy > maxUp.value || inversion && dy < maxUp.value) {
+          maxDown = { value: dy, button }
+          console.log('set maxDown', maxDown)
+        }
       } else if (direction === 'up-left' && dx === -distance && dy === -distance * inversion) {
         button.click()
+        isClicked = true
       } else if (direction === 'up-right' && dx === distance && dy === -distance * inversion) {
         button.click()
+        isClicked = true
       } else if (direction === 'down-left' && dx === -distance && dy === distance * inversion) {
         button.click()
+        isClicked = true
       } else if (direction === 'down-right' && dx === distance && dy === distance * inversion) {
         button.click()
+        isClicked = true
       }
     })
+
+    if (!isClicked) {
+      if (direction === 'left' && maxLeft.button) {
+        maxLeft.button.click()
+      } else if (direction === 'right' && maxRight.button) {
+        maxRight.button.click()
+      } else if (direction === 'up' && maxUp.button) {
+        maxUp.button.click()
+      } else if (direction === 'down' && maxDown.button) {
+        maxDown.button.click()
+      }
+    }
   })
 }
 
